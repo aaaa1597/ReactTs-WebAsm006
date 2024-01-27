@@ -49,3 +49,33 @@ void CreateAruCoMarker() {
   cv::imwrite("ar" + std::to_string(CNT) + ".png", vconcat_img);
   return;
 }
+
+void DetectAruCoMarker() {
+  cv::aruco::DetectorParameters detectorParams = cv::aruco::DetectorParameters();
+  cv::aruco::Dictionary dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_100);
+  cv::aruco::ArucoDetector detector(dictionary, detectorParams);
+
+  for(int lpcti = 0; lpcti < CNT + 1; lpcti++){
+    // 入力ファイル名
+    std::string input_file_nm = "ar" + std::to_string(lpcti) + ".png";
+    // 出力ファイル名
+    std::string output_file_nm = "ar_detection" + std::to_string(lpcti) + ".png";
+    // 入力ファイルの読み込み
+    cv::Mat input_img = cv::imread(input_file_nm, cv::IMREAD_COLOR);
+
+    std::vector<std::vector<cv::Point2f>> corners, rejectedCandidates;
+    std::vector<int> ids;
+
+    // ArUcoマーカの検出
+    detector.detectMarkers(input_img, corners, ids, rejectedCandidates);
+
+    if(ids.size() > 0){
+      cv::Mat output_img = input_img.clone();
+      // ArUcoマーカの検出結果の描画
+      cv::aruco::drawDetectedMarkers(output_img, corners, ids);
+      // ArUcoマーカの検出結果をファイル出力
+      cv::imwrite(output_file_nm, output_img);
+    }
+  }
+  return;
+}
